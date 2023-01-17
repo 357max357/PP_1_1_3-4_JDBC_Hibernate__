@@ -46,13 +46,22 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
         String sqlQuerySaveUser = "INSERT INTO users_table (name, lastName, age) VALUES (?, ?, ?)";
 
         try (PreparedStatement statement = connection.prepareStatement(sqlQuerySaveUser)) {
+            connection.setAutoCommit(false);
+
             statement.setString(1, name);
             statement.setString(2, lastName);
             statement.setByte(3, age);
 
             statement.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            connection.commit();
+
+            connection.setAutoCommit(true);
+        } catch (Exception e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
 
         System.out.println("User с именем - " + name + " добавлен в базу данных");
