@@ -2,6 +2,7 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
+import org.hibernate.SessionFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,6 +14,7 @@ import java.util.List;
 
 public class UserDaoJDBCImpl extends Util implements UserDao {
     private final Connection connection = getConnection();
+
 
     public UserDaoJDBCImpl() {
     }
@@ -68,12 +70,23 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
     }
 
     public void removeUserById(long id) {
-        String sqlQueryRemoveUserById = "DELETE FROM users_table WHERE id = " + id;
+        String sqlQueryRemoveUserById = "DELETE FROM users_table WHERE id =?";
 
         try (PreparedStatement statement = connection.prepareStatement(sqlQueryRemoveUserById)) {
+            connection.setAutoCommit(false);
+
+            statement.setLong(1, id);
+
             statement.executeUpdate();
+            connection.commit();
+
+            connection.setAutoCommit(true);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
@@ -108,9 +121,18 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
         String sqlQueryCleanUsersTable = "DELETE FROM users_table";
 
         try (PreparedStatement statement = connection.prepareStatement(sqlQueryCleanUsersTable)) {
+            connection.setAutoCommit(false);
+
             statement.executeUpdate();
+            connection.commit();
+
+            connection.setAutoCommit(true);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 }
