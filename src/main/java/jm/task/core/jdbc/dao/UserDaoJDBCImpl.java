@@ -2,7 +2,6 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
-import org.hibernate.SessionFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +13,6 @@ import java.util.List;
 
 public class UserDaoJDBCImpl extends Util implements UserDao {
     private final Connection connection = getConnection();
-
 
     public UserDaoJDBCImpl() {
     }
