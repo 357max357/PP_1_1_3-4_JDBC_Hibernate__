@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoHibernateImpl extends Util implements UserDao {
@@ -31,7 +32,6 @@ public class UserDaoHibernateImpl extends Util implements UserDao {
             query.executeUpdate();
 
             session.getTransaction().commit();
-            session.close();
         }
     }
 
@@ -46,7 +46,6 @@ public class UserDaoHibernateImpl extends Util implements UserDao {
             query.executeUpdate();
 
             session.getTransaction().commit();
-            session.close();
         }
     }
 
@@ -58,7 +57,6 @@ public class UserDaoHibernateImpl extends Util implements UserDao {
             session.beginTransaction();
             session.save(user);
             session.getTransaction().commit();
-            session.close();
         } catch (Exception e) {
             session.getTransaction().rollback();
         }
@@ -75,7 +73,6 @@ public class UserDaoHibernateImpl extends Util implements UserDao {
             session.delete(user);
 
             session.getTransaction().commit();
-            session.close();
         } catch (Exception e) {
             session.getTransaction().rollback();
         }
@@ -83,14 +80,16 @@ public class UserDaoHibernateImpl extends Util implements UserDao {
 
     @Override
     public List<User> getAllUsers() {
+        List<User> userList = new ArrayList<>();
         String sqlQueryGetAllUsers = "from User";
 
         try (Session session = factory.openSession()) {
             for (User user : session.createQuery(sqlQueryGetAllUsers, User.class).list()) {
+                userList.add(user);
                 System.out.println(user.toString());
             }
 
-            return session.createQuery("from User", User.class).list();
+            return userList;
         } catch (Exception e) {
             session.getTransaction().rollback();
             return null;
@@ -108,7 +107,6 @@ public class UserDaoHibernateImpl extends Util implements UserDao {
             query.executeUpdate();
 
             session.getTransaction().commit();
-            session.close();
         } catch (Exception e) {
             session.getTransaction().rollback();
         }
